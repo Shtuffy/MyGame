@@ -10,13 +10,27 @@ import com.josho.game.TestGame;
 
 public class Guy extends Sprite
 {
+    public enum State {FALLING, JUMPING, STANDING, MOVING, DEAD }
+    public State currentState;
+    public State previousState;
+
     public World world;
     public Body b2body;
+
+    private boolean guyIsDead;
 
     public Guy(World world)
     {
         this.world = world;
+        currentState = State.STANDING;
+        previousState = State.STANDING;
+
         defineCharacter();
+    }
+
+    public void update(float dt)
+    {
+        setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
     }
 
     public void defineCharacter()
@@ -28,9 +42,46 @@ public class Guy extends Sprite
 
         FixtureDef fdef = new FixtureDef();
         CircleShape shape = new CircleShape();
-        shape.setRadius(5 / TestGame.PPM);
+        shape.setRadius(6 / TestGame.PPM);
 
         fdef.shape = shape;
         b2body.createFixture(fdef);
+    }
+
+    public boolean isDead(boolean dead)
+    {
+        if(dead)
+        {
+            guyIsDead = true;
+        }
+        else
+        {
+            guyIsDead = false;
+        }
+        return guyIsDead;
+    }
+
+    public State getState()
+    {
+        if(guyIsDead)
+        {
+            return State.DEAD;
+        }
+        if(b2body.getLinearVelocity().y > 0)
+        {
+            return State.JUMPING;
+        }
+        if(b2body.getLinearVelocity().y < 0)
+        {
+            return State.FALLING;
+        }
+        if(b2body.getLinearVelocity().x != 0)
+        {
+            return State.MOVING;
+        }
+        else
+        {
+            return State.STANDING;
+        }
     }
 }

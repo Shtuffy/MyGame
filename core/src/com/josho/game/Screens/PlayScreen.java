@@ -25,6 +25,13 @@ public class PlayScreen implements Screen
     private Hud hud;
     private Guy player;
 
+    private float screenL;
+    private float screenB;
+    private float screenT;
+    private float screenR;
+
+
+
     //Tiled map variables
     private TmxMapLoader mapLoader;
     private TiledMap map;
@@ -40,13 +47,18 @@ public class PlayScreen implements Screen
         gamePort = new FitViewport(TestGame.V_WIDTH / TestGame.PPM, TestGame.V_HEIGHT / TestGame.PPM, gamecam);
         hud = new Hud(game.batch);
 
+        screenL = gamePort.getScreenX();
+        screenB = gamePort.getScreenY();
+        screenT = screenB + gamePort.getScreenHeight();
+        screenR = screenL + gamePort.getScreenWidth();
+
         mapLoader = new TmxMapLoader();
         map = mapLoader.load("TestLevel.tmx");
         renderer = new OrthogonalTiledMapRenderer(map, 1 / TestGame.PPM);
 
         gamecam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
-        world = new World(new Vector2(0, -10), true);
+        world = new World(new Vector2(0, -15), true);
         b2dr = new Box2DDebugRenderer();
 
         new B2WorldCreator(world, map);
@@ -62,19 +74,27 @@ public class PlayScreen implements Screen
 
     public void handleInput(float dt)
     {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP))
+        if(player.getState() != Guy.State.DEAD)
         {
-            player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
-        {
-            player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
-        {
-            player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+            if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
+            {
+                if(Gdx.input.isKeyJustPressed(Input.Keys.UP))
+                {
+                    player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
+                }
+            }
+            if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
+            {
+                player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
+            }
+            if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
+            {
+                player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+            }
         }
     }
+
+
 
     public void update(float dt)
     {
@@ -82,10 +102,16 @@ public class PlayScreen implements Screen
 
         world.step(1/60f, 6, 2);
 
-        gamecam.position.x = player.b2body.getPosition().x;
+        player.update(dt);
+
+        if(player.currentState != Guy.State.DEAD)
+        {
+            gamecam.position.x = player.b2body.getPosition().x;
+        }
 
         gamecam.update();
         renderer.setView(gamecam);
+        gameOver();
     }
 
     @Override
@@ -93,7 +119,7 @@ public class PlayScreen implements Screen
     {
         update(delta);
 
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         renderer.render();
@@ -102,6 +128,24 @@ public class PlayScreen implements Screen
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+
+        if(player.getState() == Guy.State.DEAD)
+        {
+            game.setScreen(new GameOverScreen(game));
+            dispose();
+        }
+    }
+
+    public void gameOver()
+    {
+        if(player.b2body.getPosition().y < screenB)
+        {
+            player.isDead(true);
+        }
+        else
+        {
+            player.isDead(false);
+        }
     }
 
     @Override

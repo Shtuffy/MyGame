@@ -19,15 +19,21 @@ public class Hud implements Disposable
     public Stage stage;
     private Viewport viewport;
 
-    private Integer score;
+    protected Integer score = 0;
+    protected Integer lives;
 
     Label scoreLabel;
     Label levelLabel;
+    Label livesLabel;
+    Label livesCount;
+
+    public void deductLives()
+    {
+        lives--;
+    }
 
     public Hud(SpriteBatch sb)
     {
-        score = 0;
-
         viewport = new FitViewport(TestGame.V_WIDTH, TestGame.V_HEIGHT, new OrthographicCamera());
         stage = new Stage(viewport, sb);
 
@@ -37,10 +43,14 @@ public class Hud implements Disposable
 
         scoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         levelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        livesCount = new Label(String.format("%02d", lives), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        livesLabel = new Label("Lives", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
 
         table.add(levelLabel).expandX();
+        table.add(livesLabel).expandX();
         table.row();
         table.add(scoreLabel).expandX();
+        table.add(livesCount).expandX();
 
         stage.addActor(table);
     }
