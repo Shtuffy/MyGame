@@ -1,5 +1,6 @@
 package com.josho.game.Screens;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -16,6 +17,7 @@ import com.josho.game.Scenes.Hud;
 import com.josho.game.Sprites.Guy;
 import com.josho.game.TestGame;
 import com.josho.game.Tools.B2WorldCreator;
+import com.josho.game.Tools.Controller;
 
 public class PlayScreen implements Screen
 {
@@ -24,13 +26,12 @@ public class PlayScreen implements Screen
     private Viewport gamePort;
     private Hud hud;
     private Guy player;
+    private Controller controller;
 
     private float screenL;
     private float screenB;
     private float screenT;
     private float screenR;
-
-
 
     //Tiled map variables
     private TmxMapLoader mapLoader;
@@ -58,12 +59,13 @@ public class PlayScreen implements Screen
 
         gamecam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
-        world = new World(new Vector2(0, -15), true);
+        world = new World(new Vector2(0, -13), true);
         b2dr = new Box2DDebugRenderer();
 
         new B2WorldCreator(world, map);
 
         player = new Guy(world);
+        controller = new Controller();
     }
 
     @Override
@@ -74,22 +76,51 @@ public class PlayScreen implements Screen
 
     public void handleInput(float dt)
     {
-        if(player.getState() != Guy.State.DEAD || player.getState() != Guy.State.GAME_OVER)
+        if(Gdx.app.getType() == Application.ApplicationType.Android)
         {
-            if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
+            if(player.getState() != Guy.State.DEAD || player.getState() != Guy.State.GAME_OVER)
             {
-                if(Gdx.input.isKeyJustPressed(Input.Keys.UP))
+                if(controller.isRightPressed())
                 {
-                    player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
+                    player.b2body.setLinearVelocity(new Vector2(1, player.b2body.getLinearVelocity().y));
                 }
+                else if(controller.isLeftPressed())
+                {
+                    player.b2body.setLinearVelocity(new Vector2(-1, player.b2body.getLinearVelocity().y));
+                }
+
+                if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
+                {
+                    if(controller.isJumpPressed())
+                    {
+                        player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
+                    }
+                }
+
+                //down and up arrows currently do nothing
             }
-            if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
+        }
+        else if (Gdx.app.getType() == Application.ApplicationType.Desktop)
+        {
+            if(player.getState() != Guy.State.DEAD || player.getState() != Guy.State.GAME_OVER)
             {
-                player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
-            }
-            if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
-            {
-                player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+                if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
+                {
+                    if(Gdx.input.isKeyJustPressed(Input.Keys.UP))
+                    {
+                        player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
+                    }
+                }
+
+                if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
+                {
+                    player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
+                }
+
+                if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
+                {
+                    player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+                }
             }
         }
     }
@@ -122,10 +153,13 @@ public class PlayScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         renderer.render();
-
         b2dr.render(world, gamecam.combined);
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+        if(Gdx.app.getType() == Application.ApplicationType.Android)
+        {
+            controller.draw();
+        }
         hud.stage.draw();
 
         if(player.getState() == Guy.State.GAME_OVER)
@@ -160,6 +194,7 @@ public class PlayScreen implements Screen
     public void resize(int width, int height)
     {
         gamePort.update(width, height);
+        controller.resize(width, height);
     }
 
     @Override

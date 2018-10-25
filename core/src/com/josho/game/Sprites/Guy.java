@@ -5,6 +5,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.josho.game.TestGame;
 
@@ -43,8 +44,8 @@ public class Guy extends Sprite
         b2body = world.createBody(bdef);
 
         FixtureDef fdef = new FixtureDef();
-        CircleShape shape = new CircleShape();
-        shape.setRadius(6 / TestGame.PPM);
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(6 / TestGame.PPM, 6 / TestGame.PPM);
 
         fdef.shape = shape;
         b2body.createFixture(fdef);

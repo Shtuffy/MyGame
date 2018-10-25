@@ -28,11 +28,6 @@ public class Hud implements Disposable
     Label livesLabel;
     Label livesCount;
 
-    public void deductLives()
-    {
-        lives--;
-    }
-
     public Hud(SpriteBatch sb)
     {
         viewport = new FitViewport(TestGame.V_WIDTH, TestGame.V_HEIGHT, new OrthographicCamera());
