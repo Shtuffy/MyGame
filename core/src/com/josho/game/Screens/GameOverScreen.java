@@ -57,6 +57,7 @@ public class GameOverScreen implements Screen
         if(Gdx.input.justTouched())
         {
             game.setScreen(new PlayScreen((TestGame) game));
+            PlayScreen.resetGame(true);
             dispose();
         }
         Gdx.gl.glClearColor(0, 0, 0, 1);

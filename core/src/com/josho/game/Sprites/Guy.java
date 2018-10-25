@@ -10,7 +10,7 @@ import com.josho.game.TestGame;
 
 public class Guy extends Sprite
 {
-    public enum State {FALLING, JUMPING, STANDING, MOVING, DEAD }
+    public enum State { FALLING, JUMPING, STANDING, MOVING, DEAD, GAME_OVER }
     public State currentState;
     public State previousState;
 
@@ -18,6 +18,8 @@ public class Guy extends Sprite
     public Body b2body;
 
     private boolean guyIsDead;
+
+    public static int lives = 3;
 
     public Guy(World world)
     {
@@ -53,6 +55,8 @@ public class Guy extends Sprite
         if(dead)
         {
             guyIsDead = true;
+            lives--;
+            defineCharacter();
         }
         else
         {
@@ -63,6 +67,10 @@ public class Guy extends Sprite
 
     public State getState()
     {
+        if(lives < 0)
+        {
+            return State.GAME_OVER;
+        }
         if(guyIsDead)
         {
             return State.DEAD;

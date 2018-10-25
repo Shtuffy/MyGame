@@ -19,7 +19,7 @@ import com.josho.game.Tools.B2WorldCreator;
 
 public class PlayScreen implements Screen
 {
-    private TestGame game;
+    private static TestGame game;
     private OrthographicCamera gamecam;
     private Viewport gamePort;
     private Hud hud;
@@ -74,7 +74,7 @@ public class PlayScreen implements Screen
 
     public void handleInput(float dt)
     {
-        if(player.getState() != Guy.State.DEAD)
+        if(player.getState() != Guy.State.DEAD || player.getState() != Guy.State.GAME_OVER)
         {
             if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
             {
@@ -94,8 +94,6 @@ public class PlayScreen implements Screen
         }
     }
 
-
-
     public void update(float dt)
     {
         handleInput(dt);
@@ -103,15 +101,16 @@ public class PlayScreen implements Screen
         world.step(1/60f, 6, 2);
 
         player.update(dt);
+        hud.update(dt);
+        gamecam.update();
 
         if(player.currentState != Guy.State.DEAD)
         {
             gamecam.position.x = player.b2body.getPosition().x;
         }
 
-        gamecam.update();
         renderer.setView(gamecam);
-        gameOver();
+        guyDied();
     }
 
     @Override
@@ -129,14 +128,14 @@ public class PlayScreen implements Screen
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
-        if(player.getState() == Guy.State.DEAD)
+        if(player.getState() == Guy.State.GAME_OVER)
         {
             game.setScreen(new GameOverScreen(game));
             dispose();
         }
     }
 
-    public void gameOver()
+    public void guyDied()
     {
         if(player.b2body.getPosition().y < screenB)
         {
@@ -145,6 +144,15 @@ public class PlayScreen implements Screen
         else
         {
             player.isDead(false);
+        }
+    }
+
+    public static void resetGame(boolean bool)
+    {
+        if(bool)
+        {
+            Guy.lives = 3;
+            new PlayScreen(game);
         }
     }
 

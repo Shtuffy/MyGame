@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.josho.game.Sprites.Guy;
 import com.josho.game.TestGame;
 
 
@@ -20,7 +21,7 @@ public class Hud implements Disposable
     private Viewport viewport;
 
     protected Integer score = 0;
-    protected Integer lives;
+    protected Integer lives = Guy.lives;
 
     Label scoreLabel;
     Label levelLabel;
@@ -53,6 +54,16 @@ public class Hud implements Disposable
         table.add(livesCount).expandX();
 
         stage.addActor(table);
+    }
+
+    public void update(float dt)
+    {
+        lives = Guy.lives;
+
+        if(lives >= 0)
+        {
+            livesCount.setText(String.format("%02d", lives));
+        }
     }
 
     @Override
