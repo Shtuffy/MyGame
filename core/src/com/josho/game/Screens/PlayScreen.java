@@ -160,6 +160,7 @@ public class PlayScreen implements Screen
         {
             controller.draw();
         }
+
         hud.stage.draw();
 
         if(player.getState() == Guy.State.GAME_OVER)
