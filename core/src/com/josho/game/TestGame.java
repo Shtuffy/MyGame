@@ -3,7 +3,6 @@ package com.josho.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.josho.game.Screens.MainMenuScreen;
-import com.josho.game.Screens.PlayScreen;
 
 public class TestGame extends Game
 {

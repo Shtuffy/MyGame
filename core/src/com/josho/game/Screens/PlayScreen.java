@@ -6,12 +6,17 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.*;
 import com.josho.game.Scenes.Hud;
 import com.josho.game.Sprites.Guy;
@@ -27,6 +32,7 @@ public class PlayScreen implements Screen
     private Hud hud;
     private Guy player;
     private Controller controller;
+    private SpriteBatch batch;
 
     private float screenL;
     private float screenB;
@@ -41,12 +47,15 @@ public class PlayScreen implements Screen
     private World world;
     private Box2DDebugRenderer b2dr;
 
+    private Array<Body> tmpBodies = new Array<Body>();
+
     public PlayScreen(TestGame game)
     {
         this.game = game;
         gamecam = new OrthographicCamera();
         gamePort = new FitViewport(TestGame.V_WIDTH / TestGame.PPM, TestGame.V_HEIGHT / TestGame.PPM, gamecam);
         hud = new Hud(game.batch);
+        batch = new SpriteBatch();
 
         screenL = gamePort.getScreenX();
         screenB = gamePort.getScreenY();
@@ -155,7 +164,24 @@ public class PlayScreen implements Screen
         renderer.render();
         b2dr.render(world, gamecam.combined);
 
+
+        batch.setProjectionMatrix(gamecam.combined);
+        batch.begin();
+        world.getBodies(tmpBodies);
+        for(Body body : tmpBodies)
+        {
+            if(body.getUserData() instanceof Sprite)
+            {
+                Sprite sprite = (Sprite) body.getUserData();
+                sprite.setPosition(body.getPosition().x - sprite.getWidth() / 2, body.getPosition().y - sprite.getHeight() / 2);
+                sprite.setRotation(body.getAngle() * MathUtils.radiansToDegrees);
+                sprite.draw(batch);
+            }
+        }
+        batch.end();
+
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+
         if(Gdx.app.getType() == Application.ApplicationType.Android)
         {
             controller.draw();
