@@ -64,13 +64,12 @@ public class MainMenuScreen implements Screen
             }
         });
 
-        //Add options menu
 //        optionsLabel.addListener(new ClickListener()
 //        {
 //            @Override
 //            public void clicked(InputEvent event, float x, float y)
 //            {
-//                ((Game)Gdx.app.getApplicationListener()).setScreen(new PlayScreen((TestGame) game));
+//                ((Game)Gdx.app.getApplicationListener()).setScreen(new OptionsScreen());
 //            }
 //        });
 
@@ -128,6 +127,6 @@ public class MainMenuScreen implements Screen
     @Override
     public void dispose()
     {
-
+        stage.dispose();
     }
 }

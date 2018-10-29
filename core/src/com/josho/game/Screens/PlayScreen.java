@@ -34,6 +34,7 @@ public class PlayScreen implements Screen
     private Controller controller;
     private SpriteBatch batch;
 
+    //Screen variables
     private float screenL;
     private float screenB;
     private float screenT;
@@ -48,6 +49,9 @@ public class PlayScreen implements Screen
     private Box2DDebugRenderer b2dr;
 
     private Array<Body> tmpBodies = new Array<Body>();
+
+    private float startTime;
+    private float endTime;
 
     public PlayScreen(TestGame game)
     {
@@ -98,6 +102,15 @@ public class PlayScreen implements Screen
                     player.b2body.setLinearVelocity(new Vector2(-1, player.b2body.getLinearVelocity().y));
                 }
 
+                if(controller.isUpPressed())
+                {
+                    //do something
+                }
+                else if(controller.isDownPressed())
+                {
+                    //do something
+                }
+
                 if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
                 {
                     if(controller.isJumpPressed())
@@ -105,28 +118,36 @@ public class PlayScreen implements Screen
                         player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
                     }
                 }
-
-                //down and up arrows currently do nothing
             }
         }
         else if (Gdx.app.getType() == Application.ApplicationType.Desktop)
         {
             if(player.getState() != Guy.State.DEAD || player.getState() != Guy.State.GAME_OVER)
             {
+                if(Gdx.input.isKeyJustPressed(Input.Keys.R))
+                {
+                    GameOverScreen.resetGame(true);
+                }
+
+                if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && player.previousState != Guy.State.DASHING)
+                {
+                    player.b2body.applyLinearImpulse(new Vector2(4f, 0.5f), player.b2body.getWorldCenter(), true);
+                }
+
                 if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
                 {
-                    if(Gdx.input.isKeyJustPressed(Input.Keys.UP))
+                    if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W))
                     {
                         player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
                     }
                 }
 
-                if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
+                if((Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) && player.b2body.getLinearVelocity().x <= 2)
                 {
-                    player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
+                   player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
                 }
 
-                if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
+                if((Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) && player.b2body.getLinearVelocity().x >= -2)
                 {
                     player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
                 }
@@ -156,14 +177,13 @@ public class PlayScreen implements Screen
     @Override
     public void render(float delta)
     {
-        update(delta);
-
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        update(delta);
+
         renderer.render();
         b2dr.render(world, gamecam.combined);
-
 
         batch.setProjectionMatrix(gamecam.combined);
         batch.begin();
@@ -208,15 +228,6 @@ public class PlayScreen implements Screen
         }
     }
 
-    public static void resetGame(boolean bool)
-    {
-        if(bool)
-        {
-            Guy.lives = 3;
-            new PlayScreen(game);
-        }
-    }
-
     @Override
     public void resize(int width, int height)
     {
@@ -250,5 +261,6 @@ public class PlayScreen implements Screen
         world.dispose();
         b2dr.dispose();
         hud.dispose();
+        Guy.dispose();
     }
 }

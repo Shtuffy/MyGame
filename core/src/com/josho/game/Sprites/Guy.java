@@ -11,7 +11,7 @@ import com.josho.game.TestGame;
 
 public class Guy extends Sprite
 {
-    public enum State { FALLING, JUMPING, STANDING, MOVING, DEAD, GAME_OVER }
+    public enum State { FALLING, JUMPING, STANDING, MOVING, DEAD, GAME_OVER, DASHING }
     public State currentState;
     public State previousState;
 
@@ -21,13 +21,15 @@ public class Guy extends Sprite
 
     private boolean guyIsDead;
 
-    public static int lives = 3;
+    private static int startingLives;
 
     public Guy(World world)
     {
         this.world = world;
         currentState = State.STANDING;
         previousState = State.STANDING;
+
+        setLives(3);
 
         defineCharacter();
     }
@@ -64,7 +66,7 @@ public class Guy extends Sprite
         if(dead)
         {
             guyIsDead = true;
-            lives--;
+            startingLives--;
             defineCharacter();
         }
         else
@@ -76,7 +78,7 @@ public class Guy extends Sprite
 
     public State getState()
     {
-        if(lives < 0)
+        if(startingLives <= 0)
         {
             return State.GAME_OVER;
         }
@@ -102,7 +104,17 @@ public class Guy extends Sprite
         }
     }
 
-    public void dispose()
+    public static void setLives(int lives)
+    {
+        startingLives = lives;
+    }
+
+    public static int getLives()
+    {
+        return startingLives;
+    }
+
+    public static void dispose()
     {
         sprite.getTexture().dispose();
     }

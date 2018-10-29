@@ -21,7 +21,7 @@ public class Hud implements Disposable
     private Viewport viewport;
 
     protected Integer score = 0;
-    protected Integer lives = Guy.lives;
+    protected Integer lives = Guy.getLives();
 
     Label scoreLabel;
     Label levelLabel;
@@ -37,10 +37,10 @@ public class Hud implements Disposable
         table.top();
         table.setFillParent(true);
 
-        scoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        levelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        livesCount = new Label(String.format("%02d", lives), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        livesLabel = new Label("Lives", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        scoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        levelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        livesCount = new Label(String.format("%02d", lives), new Label.LabelStyle(new BitmapFont(), Color.BLACK));
+        livesLabel = new Label("Lives", new Label.LabelStyle(new BitmapFont(), Color.BLACK));
 
         table.add(levelLabel).expandX();
         table.add(livesLabel).expandX();
@@ -53,7 +53,7 @@ public class Hud implements Disposable
 
     public void update(float dt)
     {
-        lives = Guy.lives;
+        lives = Guy.getLives();
 
         if(lives >= 0)
         {

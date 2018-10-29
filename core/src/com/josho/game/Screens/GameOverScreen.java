@@ -12,13 +12,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.josho.game.Sprites.Guy;
 import com.josho.game.TestGame;
 
 public class GameOverScreen implements Screen
 {
     private Viewport viewport;
     private Stage stage;
-    private Game game;
+    private static Game game;
 
     public GameOverScreen(Game game)
     {
@@ -33,7 +34,7 @@ public class GameOverScreen implements Screen
         table.setFillParent(true);
 
         Label gameOverLabel = new Label("GAME OVER", font);
-        Label playAgainLabel = new Label("Click to play again", font);
+        Label playAgainLabel = new Label("Click to Play Again", font);
 
         table.add(gameOverLabel).expandX();
         table.row();
@@ -48,13 +49,22 @@ public class GameOverScreen implements Screen
 
     }
 
+    public static void resetGame(boolean bool)
+    {
+        if(bool)
+        {
+            Guy.setLives(3);
+            new TestGame();
+            game.setScreen(new PlayScreen((TestGame) game));
+        }
+    }
+
     @Override
     public void render(float delta)
     {
         if(Gdx.input.justTouched())
         {
-            game.setScreen(new PlayScreen((TestGame) game));
-            PlayScreen.resetGame(true);
+            resetGame(true);
             dispose();
         }
         Gdx.gl.glClearColor(0, 0, 0, 1);
