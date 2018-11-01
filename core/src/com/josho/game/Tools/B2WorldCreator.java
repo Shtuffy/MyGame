@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.josho.game.Sprites.Coin;
+import com.josho.game.Sprites.Spike;
 import com.josho.game.TestGame;
 
 public class B2WorldCreator
@@ -34,6 +35,13 @@ public class B2WorldCreator
             shape.setAsBox(rect.getWidth() / 2 / TestGame.PPM, rect.getHeight() / 2 / TestGame.PPM);
             fdef.shape = shape;
             body.createFixture(fdef);
+        }
+
+        for(MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class))
+        {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+
+            new Spike(world, map, rect);
         }
 
         //create coin bodies/fixtures

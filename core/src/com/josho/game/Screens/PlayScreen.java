@@ -23,6 +23,10 @@ import com.josho.game.Sprites.Guy;
 import com.josho.game.TestGame;
 import com.josho.game.Tools.B2WorldCreator;
 import com.josho.game.Tools.Controller;
+import com.josho.game.Tools.LevelGenerator;
+import com.josho.game.Tools.WorldContactListener;
+
+import java.util.ArrayList;
 
 public class PlayScreen implements Screen
 {
@@ -34,7 +38,7 @@ public class PlayScreen implements Screen
     private Controller controller;
     private SpriteBatch batch;
 
-    //Screen variables
+    //Screen region variables
     private float screenL;
     private float screenB;
     private float screenT;
@@ -46,12 +50,17 @@ public class PlayScreen implements Screen
     private OrthogonalTiledMapRenderer renderer;
 
     private World world;
+//    private LevelGenerator gen;
     private Box2DDebugRenderer b2dr;
 
-    private Array<Body> tmpBodies = new Array<Body>();
+    //Body arrays
+    private Array<Body> tmpBodies;
+    public static ArrayList<Body> activeBodies;
+    public static Array<Body> deleteBodies;
 
-    private float startTime;
-    private float endTime;
+    //jump varibales
+    private float maxJump;
+    private float minJump;
 
     public PlayScreen(TestGame game)
     {
@@ -66,6 +75,13 @@ public class PlayScreen implements Screen
         screenT = screenB + gamePort.getScreenHeight();
         screenR = screenL + gamePort.getScreenWidth();
 
+        maxJump = 4f;
+        minJump = 3f;
+
+        tmpBodies = new Array<Body>();
+        activeBodies = new ArrayList<Body>();
+        deleteBodies = new Array<Body>();
+
         mapLoader = new TmxMapLoader();
         map = mapLoader.load("TestLevel.tmx");
         renderer = new OrthogonalTiledMapRenderer(map, 1 / TestGame.PPM);
@@ -79,12 +95,19 @@ public class PlayScreen implements Screen
 
         player = new Guy(world);
         controller = new Controller();
+
+        world.setContactListener(new WorldContactListener());
     }
 
     @Override
     public void show()
     {
+        activeBodies.add(player.b2body);
 
+        if(Gdx.app.getType() == Application.ApplicationType.Android)
+        {
+            controller.draw();
+        }
     }
 
     public void handleInput(float dt)
@@ -111,7 +134,7 @@ public class PlayScreen implements Screen
                     //do something
                 }
 
-                if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
+                if((player.getState() != Guy.State.JUMPING) && (player.getState() != Guy.State.FALLING) && (player.previousState == Guy.State.STANDING || player.previousState == Guy.State.MOVING))
                 {
                     if(controller.isJumpPressed())
                     {
@@ -122,24 +145,27 @@ public class PlayScreen implements Screen
         }
         else if (Gdx.app.getType() == Application.ApplicationType.Desktop)
         {
-            if(player.getState() != Guy.State.DEAD || player.getState() != Guy.State.GAME_OVER)
+            if(player.getState() != Guy.State.DEAD && player.getState() != Guy.State.GAME_OVER)
             {
                 if(Gdx.input.isKeyJustPressed(Input.Keys.R))
                 {
                     GameOverScreen.resetGame(true);
                 }
 
-                if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) && player.previousState != Guy.State.DASHING)
+                if(Gdx.input.isKeyJustPressed(Input.Keys.X) && ((player.previousState != Guy.State.DASHING) && (player.previousState != Guy.State.FALLING)))
                 {
                     player.b2body.applyLinearImpulse(new Vector2(4f, 0.5f), player.b2body.getWorldCenter(), true);
                 }
 
-                if(player.getState() != Guy.State.JUMPING && player.getState() != Guy.State.FALLING)
+                if((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) && (player.getState() != Guy.State.JUMPING)
+                        && (player.getState() != Guy.State.FALLING) && (player.previousState == Guy.State.STANDING || player.previousState == Guy.State.MOVING))
                 {
-                    if(Gdx.input.isKeyJustPressed(Input.Keys.UP) || Gdx.input.isKeyJustPressed(Input.Keys.W))
-                    {
-                        player.b2body.applyLinearImpulse(new Vector2(0, 4f), player.b2body.getWorldCenter(), true);
-                    }
+                    player.b2body.applyLinearImpulse(new Vector2(0, maxJump), player.b2body.getWorldCenter(), true);
+                }
+                else if((Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) && (player.getState() != Guy.State.JUMPING)
+                        && (player.getState() != Guy.State.FALLING) && (player.previousState == Guy.State.STANDING || player.previousState == Guy.State.MOVING))
+                {
+                    player.b2body.applyLinearImpulse(new Vector2(0, minJump), player.b2body.getWorldCenter(), true);
                 }
 
                 if((Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) && player.b2body.getLinearVelocity().x <= 2)
@@ -159,19 +185,43 @@ public class PlayScreen implements Screen
     {
         handleInput(dt);
 
+        System.out.println(Guy.previousState);
+
         world.step(1/60f, 6, 2);
+        for(int i = 0; i < deleteBodies.size; i++)
+        {
+            world.destroyBody(player.b2body);
+        }
+        deleteBodies.clear();
 
         player.update(dt);
         hud.update(dt);
         gamecam.update();
+
+        renderer.setView(gamecam);
+
+        if(!activeBodies.contains(player.b2body))
+        {
+            player.isDead(true);
+            activeBodies.add(player.b2body);
+        }
 
         if(player.currentState != Guy.State.DEAD)
         {
             gamecam.position.x = player.b2body.getPosition().x;
         }
 
-        renderer.setView(gamecam);
-        guyDied();
+        if(player.b2body.getPosition().y < screenB)
+        {
+            player.isDead(true);
+            activeBodies.add(player.b2body);
+        }
+
+        if(player.getState() == Guy.State.GAME_OVER)
+        {
+            game.setScreen(new GameOverScreen(game));
+            dispose();
+        }
     }
 
     @Override
@@ -202,30 +252,7 @@ public class PlayScreen implements Screen
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
 
-        if(Gdx.app.getType() == Application.ApplicationType.Android)
-        {
-            controller.draw();
-        }
-
         hud.stage.draw();
-
-        if(player.getState() == Guy.State.GAME_OVER)
-        {
-            game.setScreen(new GameOverScreen(game));
-            dispose();
-        }
-    }
-
-    public void guyDied()
-    {
-        if(player.b2body.getPosition().y < screenB)
-        {
-            player.isDead(true);
-        }
-        else
-        {
-            player.isDead(false);
-        }
     }
 
     @Override

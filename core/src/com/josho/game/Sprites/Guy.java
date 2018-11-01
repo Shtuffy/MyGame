@@ -7,21 +7,22 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.josho.game.Screens.PlayScreen;
 import com.josho.game.TestGame;
 
 public class Guy extends Sprite
 {
     public enum State { FALLING, JUMPING, STANDING, MOVING, DEAD, GAME_OVER, DASHING }
-    public State currentState;
-    public State previousState;
+    public static State currentState;
+    public static State previousState;
 
     public static World world;
     public static Body b2body;
     public static Sprite sprite;
 
-    private boolean guyIsDead;
+    private static boolean guyIsDead;
 
-    private static int startingLives;
+    public static int startingLives;
 
     public Guy(World world)
     {
@@ -29,7 +30,7 @@ public class Guy extends Sprite
         currentState = State.STANDING;
         previousState = State.STANDING;
 
-        setLives(3);
+        setLives(99);
 
         defineCharacter();
     }
@@ -37,9 +38,12 @@ public class Guy extends Sprite
     public void update(float dt)
     {
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+
+        currentState = getState();
+        previousState = currentState;
     }
 
-    public void defineCharacter()
+    public static void defineCharacter()
     {
         //body
         BodyDef bdef = new BodyDef();
@@ -51,6 +55,9 @@ public class Guy extends Sprite
         FixtureDef fdef = new FixtureDef();
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(6 / TestGame.PPM, 6 / TestGame.PPM);
+        fdef.filter.categoryBits = TestGame.GUY_BIT;
+        fdef.filter.maskBits = TestGame.DEFAULT_BIT | TestGame.SPIKE_BIT | TestGame.COIN_BIT;
+
         fdef.shape = shape;
         b2body.createFixture(fdef);
 
@@ -59,15 +66,22 @@ public class Guy extends Sprite
         sprite.setSize(15 / TestGame.PPM, 15 / TestGame.PPM);
         sprite.setOrigin(sprite.getWidth() / 2, sprite.getHeight() / 2);
         b2body.setUserData(sprite);
+
+        PolygonShape bodyCollision = new PolygonShape();
+        bodyCollision.setAsBox(6 / TestGame.PPM, 6 / TestGame.PPM);
+        fdef.shape = bodyCollision;
+
+        b2body.createFixture(fdef).setUserData("bodyCollision");
     }
 
-    public boolean isDead(boolean dead)
+    public static boolean isDead(boolean dead)
     {
         if(dead)
         {
             guyIsDead = true;
             startingLives--;
             defineCharacter();
+            guyIsDead = false;
         }
         else
         {
@@ -86,6 +100,10 @@ public class Guy extends Sprite
         {
             return State.DEAD;
         }
+        if(b2body.getLinearVelocity().x > 2)
+        {
+            return State.DASHING;
+        }
         if(b2body.getLinearVelocity().y > 0)
         {
             return State.JUMPING;
@@ -102,6 +120,12 @@ public class Guy extends Sprite
         {
             return State.STANDING;
         }
+    }
+
+    public static void markForDeletion()
+    {
+        PlayScreen.activeBodies.remove(b2body);
+        PlayScreen.deleteBodies.add(b2body);
     }
 
     public static void setLives(int lives)
