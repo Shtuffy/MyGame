@@ -23,6 +23,9 @@ public class Guy extends Sprite
     private static boolean guyIsDead;
 
     public static int startingLives;
+    private static int score;
+
+    private static float maxDistance;
 
     public Guy(World world)
     {
@@ -31,6 +34,8 @@ public class Guy extends Sprite
         previousState = State.STANDING;
 
         setLives(99);
+        score = 0;
+        maxDistance = 0f;
 
         defineCharacter();
     }
@@ -41,6 +46,11 @@ public class Guy extends Sprite
 
         currentState = getState();
         previousState = currentState;
+
+        if(b2body.getLinearVelocity().x > 0 && b2body.getPosition().x > maxDistance)
+        {
+            maxDistance = b2body.getPosition().x;
+        }
     }
 
     public static void defineCharacter()
@@ -80,6 +90,7 @@ public class Guy extends Sprite
         {
             guyIsDead = true;
             startingLives--;
+            score = 0;
             defineCharacter();
             guyIsDead = false;
         }
@@ -136,6 +147,15 @@ public class Guy extends Sprite
     public static int getLives()
     {
         return startingLives;
+    }
+
+    public static Integer getScore()
+    {
+        if(b2body.getLinearVelocity().x > 0 && b2body.getPosition().x >= maxDistance)
+        {
+            score+=10;
+        }
+        return score;
     }
 
     public static void dispose()

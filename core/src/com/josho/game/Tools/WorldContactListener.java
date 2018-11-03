@@ -19,7 +19,6 @@ public class WorldContactListener implements ContactListener
 
 //        int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
-        //TODO: MARK BODIES FOR DELETION
         if(fixA.getUserData() == "bodyCollision" || fixB.getUserData() == "bodyCollision")
         {
             Fixture bodyCollision = fixA.getUserData() == "bodyCollision" ? fixA : fixB;

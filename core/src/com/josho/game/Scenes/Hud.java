@@ -54,11 +54,14 @@ public class Hud implements Disposable
     public void update(float dt)
     {
         lives = Guy.getLives();
+        score = Guy.getScore();
 
         if(lives >= 0)
         {
             livesCount.setText(String.format("%02d", lives));
         }
+
+        scoreLabel.setText(String.format("%06d", Guy.getScore()));
     }
 
     @Override

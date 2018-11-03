@@ -185,8 +185,6 @@ public class PlayScreen implements Screen
     {
         handleInput(dt);
 
-        System.out.println(Guy.previousState);
-
         world.step(1/60f, 6, 2);
         for(int i = 0; i < deleteBodies.size; i++)
         {
