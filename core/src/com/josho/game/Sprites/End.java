@@ -3,11 +3,12 @@ package com.josho.game.Sprites;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
+import com.josho.game.Screens.PlayScreen;
 import com.josho.game.TestGame;
 
-public class Spike extends InteractiveTileObject
+public class End extends InteractiveTileObject
 {
-    public Spike(World world, TiledMap map, Rectangle bounds)
+    public End(World world, TiledMap map, Rectangle bounds)
     {
         super(world, map, bounds);
         fixture.setUserData(this);
@@ -17,7 +18,7 @@ public class Spike extends InteractiveTileObject
     @Override
     public void onHit()
     {
-        Guy.markForDeletion();
-        System.out.println("spike");
+        TestGame.levelTracker = TestGame.levelTracker + 1;
+        PlayScreen.nextLevel(TestGame.levelTracker);
     }
 }

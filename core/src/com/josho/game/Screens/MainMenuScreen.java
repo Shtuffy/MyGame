@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.josho.game.Sprites.End;
 import com.josho.game.TestGame;
 
 public class MainMenuScreen implements Screen
@@ -60,7 +61,7 @@ public class MainMenuScreen implements Screen
             @Override
             public void clicked(InputEvent event, float x, float y)
             {
-                ((Game)Gdx.app.getApplicationListener()).setScreen(new PlayScreen(game));
+                ((Game)Gdx.app.getApplicationListener()).setScreen(new PlayScreen(game, TestGame.levelTracker));
             }
         });
 

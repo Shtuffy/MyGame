@@ -1,8 +1,6 @@
 package com.josho.game.Sprites;
 
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTile;
-import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -17,10 +15,8 @@ public abstract class InteractiveTileObject
 {
     protected World world;
     protected TiledMap map;
-    protected TiledMapTile tile;
     protected Rectangle bounds;
     protected Body body;
-    protected Polygon tri;
 
     protected Fixture fixture;
 
@@ -43,8 +39,6 @@ public abstract class InteractiveTileObject
         fdef.shape = shape;
         fixture = body.createFixture(fdef);
     }
-
-    //TODO:
 
     public abstract void onHit();
 

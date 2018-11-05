@@ -49,14 +49,11 @@ public class GameOverScreen implements Screen
 
     }
 
-    public static void resetGame(boolean bool)
+    public static void resetGame()
     {
-        if(bool)
-        {
-            Guy.setLives(3);
-            new TestGame();
-            game.setScreen(new PlayScreen((TestGame) game));
-        }
+        Guy.setLives(3);
+        new TestGame();
+        game.setScreen(new PlayScreen((TestGame) game, TestGame.levelTracker));
     }
 
     @Override
@@ -64,7 +61,7 @@ public class GameOverScreen implements Screen
     {
         if(Gdx.input.justTouched())
         {
-            resetGame(true);
+            resetGame();
             dispose();
         }
         Gdx.gl.glClearColor(0, 0, 0, 1);

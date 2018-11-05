@@ -35,7 +35,7 @@ public class Guy extends Sprite
 
         setLives(99);
         score = 0;
-        maxDistance = 0f;
+        maxDistance = 0;
 
         defineCharacter();
     }
@@ -47,7 +47,7 @@ public class Guy extends Sprite
         currentState = getState();
         previousState = currentState;
 
-        if(b2body.getLinearVelocity().x > 0 && b2body.getPosition().x > maxDistance)
+        if((b2body.getLinearVelocity().x > 0 || b2body.getLinearVelocity().y > 0) && b2body.getPosition().x > maxDistance)
         {
             maxDistance = b2body.getPosition().x;
         }
@@ -93,6 +93,7 @@ public class Guy extends Sprite
             score = 0;
             defineCharacter();
             guyIsDead = false;
+            maxDistance = 0;
         }
         else
         {

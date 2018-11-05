@@ -2,6 +2,7 @@ package com.josho.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 import com.josho.game.Screens.GameOverScreen;
 import com.josho.game.Screens.MainMenuScreen;
 import com.josho.game.Screens.PlayScreen;
@@ -18,19 +19,19 @@ public class TestGame extends Game
 	public static final short COIN_BIT = 8;
 	public static final short DESTROYED_BIT = 16;
 
+	public static int levelTracker = 0;
+	public static Array<String> levels = new Array<String>();
+
 	public static SpriteBatch batch;
 
-	public MainMenuScreen mainMenuScreen;
-	public PlayScreen playScreen;
-	public GameOverScreen gameOverScreen;
-	
 	@Override
-	public void create ()
+	public void create()
 	{
 		batch = new SpriteBatch();
-		mainMenuScreen = new MainMenuScreen(this);
-		playScreen = new PlayScreen(this);
-		gameOverScreen = new GameOverScreen(this);
+
+		levels.add("TestLevel.tmx");
+		levels.add("TestLevel2.tmx");
+
 		setScreen(new MainMenuScreen(this));
 	}
 

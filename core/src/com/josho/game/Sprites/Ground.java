@@ -5,9 +5,9 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.World;
 import com.josho.game.TestGame;
 
-public class Spike extends InteractiveTileObject
+public class Ground extends InteractiveTileObject
 {
-    public Spike(World world, TiledMap map, Rectangle bounds)
+    public Ground(World world, TiledMap map, Rectangle bounds)
     {
         super(world, map, bounds);
         fixture.setUserData(this);
@@ -17,7 +17,6 @@ public class Spike extends InteractiveTileObject
     @Override
     public void onHit()
     {
-        Guy.markForDeletion();
-        System.out.println("spike");
+        System.out.println("ground");
     }
 }

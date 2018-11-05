@@ -62,7 +62,7 @@ public class PlayScreen implements Screen
     private float maxJump;
     private float minJump;
 
-    public PlayScreen(TestGame game)
+    public PlayScreen(TestGame game, int level)
     {
         this.game = game;
         gamecam = new OrthographicCamera();
@@ -70,20 +70,24 @@ public class PlayScreen implements Screen
         hud = new Hud(game.batch);
         batch = new SpriteBatch();
 
+        //screen regions
         screenL = gamePort.getScreenX();
         screenB = gamePort.getScreenY();
         screenT = screenB + gamePort.getScreenHeight();
         screenR = screenL + gamePort.getScreenWidth();
 
+        //jump heights
         maxJump = 4f;
         minJump = 3f;
 
+        //initializing arrays
         tmpBodies = new Array<Body>();
         activeBodies = new ArrayList<Body>();
         deleteBodies = new Array<Body>();
 
+        //map loading
         mapLoader = new TmxMapLoader();
-        map = mapLoader.load("TestLevel.tmx");
+        map = mapLoader.load(TestGame.levels.get(level));
         renderer = new OrthogonalTiledMapRenderer(map, 1 / TestGame.PPM);
 
         gamecam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
@@ -149,12 +153,12 @@ public class PlayScreen implements Screen
             {
                 if(Gdx.input.isKeyJustPressed(Input.Keys.R))
                 {
-                    GameOverScreen.resetGame(true);
+                    GameOverScreen.resetGame();
                 }
 
                 if(Gdx.input.isKeyJustPressed(Input.Keys.X) && ((player.previousState != Guy.State.DASHING) && (player.previousState != Guy.State.FALLING)))
                 {
-                    player.b2body.applyLinearImpulse(new Vector2(4f, 0.5f), player.b2body.getWorldCenter(), true);
+                    player.b2body.applyLinearImpulse(new Vector2(8f, 4f), player.b2body.getWorldCenter(), true);
                 }
 
                 if((Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) && (player.getState() != Guy.State.JUMPING)
@@ -287,5 +291,10 @@ public class PlayScreen implements Screen
         b2dr.dispose();
         hud.dispose();
         Guy.dispose();
+    }
+
+    public static void nextLevel(int level)
+    {
+        game.setScreen(new PlayScreen(game, level));
     }
 }
